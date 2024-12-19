@@ -35,17 +35,6 @@ if (any(is.na(tip_colors))) {
   stop("No se pudieron asignar colores. Verifica los valores en la columna 'Paleoenvironment'.")
 }
 str(tip_colors)
-
-########################################
-#ordeno las terminales del arbol con los caraceres de cada uno
-vector_orden <- ptero_cropped$tip.label #creamos un vector que siga el orden del arbol
-new_data_ord <- new_data[match(vector_orden, new_data$Species),] #hacemos que el caracter ambiente se ordenen siguiendo el vector previamente creado
-identical(ptero_cropped$tip.label, new_data_ord$Species)
-
-#determina los colores que se usarán
-col <- c("dodgerblue4", "darkorange2")
-tip_colors <- col[new_data_ord$Paleoenvironment] #lo usaremos más adelante
-###########################################33
 #grafica
 plot(
   ptero_cropped,
@@ -64,68 +53,37 @@ edgelabels()
 length(ptero_cropped$edge)
 #428
 
-###############
-# Función para mezclar colores
-mezcla_colores <- function(colores) {
-  if (length(unique(colores)) == 1) {
-    return(unique(colores))  # Si todos los colores son iguales, regresa ese color
-  } else {
-    # Mezcla colores usando interpolación
-    return(rgb(colMeans(col2rgb(colores)) / 255))
-  }
-}
-##################
+
 # Asigna colores a las hojas según su estado
 
-# Colorea las ramas del árbol basándose en los estados terminales
-edge_colors <- rep("gray70", nrow(ptero_cropped$edge))  # Inicializa todo en gris
-
-# Colorea las ramas terminales
+# Colorea las ramas del árbol basándote en los estados terminales
+edge_colors <- rep("gray70", nrow(ptero_cropped$edge))  # primero colorea a todo el árbol con un color que designes. 
 for (i in seq_along(ptero_cropped$tip.label)) {
-  edge_index <- which(ptero_cropped$edge[, 2] == i)
-  edge_colors[edge_index] <- tip_colors[i]
-}
-
-# Propaga colores hacia las ramas internas
-for (i in rev(seq_len(nrow(ptero_cropped$edge)))) {
-  child <- ptero_cropped$edge[i, 2]
-  
-  # Si el nodo es interno, mezcla los colores de sus hijos
-  if (child > length(ptero_cropped$tip.label)) {
-    child_edges <- which(ptero_cropped$edge[, 1] == child)
-    child_colors <- edge_colors[child_edges]
-    edge_colors[i] <- mezcla_colores(child_colors)
-  }
+  edge_index <- which(ptero_cropped$edge[, 2] == i)  # Encuentra el índice del borde correspondiente
+  edge_colors[edge_index] <- tip_colors[i]  # Asigna el color del estado
 }
 
 
-par(mar = c(5, 5, 2, 2))  # Márgenes: abajo, izquierda, arriba, derecha
-
-plot(
-  ptero_cropped,
-  edge.color = edge_colors,
-  tip.color = tip_colors,
-  cex = 0.5,
-  label.offset = 0.005,
-  edge.width = 2
-)
-
-box(lty = "19", col = "green")
-axis(1, col = "green", col.ticks = "green", col.axis = "green", las = 1)
-axis(2, col = "green", col.ticks = "green", col.axis = "green", las = 1)
+foo <- function() {
+  col <- "green"
+  for (i in 1:2)
+    axis(i, col = col, col.ticks = col, col.axis = col, las = 1)
+  box(lty = "19")
+}
 
 
-# Agrega la leyenda
-legend(
-  x = "bottomleft",
-  legend = levels(as.factor(new_data_ord$Paleoenvironment)),
-  pch = 22,
-  pt.bg = col,
-  pt.cex = 1.5,
-  bty = "n",
-  cex = 0.7,
-  title = "Paleoenvironment"
-)
+
+plot(ptero_cropped, 
+     edge.color = edge_colors, 
+     tip.color = tip_colors, 
+     cex = 0.5, 
+     label.offset = 0.005,
+     edge.width = 2)
+
+
+legend(x="bottomleft",levels(as.factor(new_data_ord$Paleoenvironment)),pch=22,
+       pt.bg=col,pt.cex=1.5, bty="n",cex=0.7, title = "Paleoenvironment")
+
 
 foo()
 
