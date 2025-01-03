@@ -1,5 +1,5 @@
 # Configuración inicial
-directorio <- "C:/Users/alcan/OneDrive/Documentos/ProyectoBio/PhyloMapper"
+directorio <- "C:/Users/jatzi/OneDrive/Documentos/Servicio Social/PhyloMapper"
 setwd(directorio)
 
 # Librerías necesarias
